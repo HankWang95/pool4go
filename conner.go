@@ -10,6 +10,7 @@ type Conner struct {
 	p        *gPool
 	mu       sync.RWMutex
 	unusable bool
+	work bool
 }
 
 func (pool *gPool) wrapConn(conn net.Conn) net.Conn {
@@ -38,3 +39,4 @@ func (conner *Conner) makeUnusable() {
 }
 
 // todo: 闲置时杀连接调度算法
+

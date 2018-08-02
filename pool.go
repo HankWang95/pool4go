@@ -13,11 +13,11 @@ type Pool interface {
 }
 
 type gPool struct {
-	mu            sync.RWMutex
-	conns         chan net.Conn
-	function      function
-	maxConner     int
-	leisureConner int
+	mu         sync.RWMutex
+	conns      chan net.Conn
+	function   function
+	MaxConner  int
+	InitConner int
 }
 
 type function func() (net.Conn, error)
@@ -25,10 +25,10 @@ type function func() (net.Conn, error)
 func NewGPool(leisureConn, maxConn int, f function) (Pool, error) {
 	var pool *gPool
 	pool = &gPool{
-		maxConner:     maxConn,
-		leisureConner: leisureConn,
-		conns:         make(chan net.Conn, maxConn),
-		function:      f,
+		MaxConner:  maxConn,
+		InitConner: leisureConn,
+		conns:      make(chan net.Conn, maxConn),
+		function:   f,
 	}
 	pool.newConn(leisureConn)
 	return pool, nil
@@ -59,17 +59,12 @@ func (pool *gPool) Get() (net.Conn, error) {
 		return pool.wrapConn(conn), nil
 
 	default:
-		n := pool.Len()
-		// 如果未达到最大连接数，创建新连接
-		if n < pool.maxConner {
-			if err := pool.newConn(1); err != nil {
-				return nil, err
-			}
-			return pool.Get()
-			// 等待conner空闲后连接
-		} else {
-			return pool.wrapConn(<-pool.conns), nil
+		conn, err := pool.function()
+		if err != nil {
+			return nil, err
 		}
+		return pool.wrapConn(conn), nil
+
 	}
 }
 func (pool *gPool) putBack(conn net.Conn) error {
