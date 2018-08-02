@@ -6,6 +6,9 @@ import (
 	"sync"
 )
 
+var max chan struct{}
+
+
 type Pool interface {
 	Get() (net.Conn, error)
 	Close()
@@ -23,6 +26,8 @@ type gPool struct {
 type function func() (net.Conn, error)
 
 func NewGPool(leisureConn, maxConn int, f function) (Pool, error) {
+	max = make(chan struct{}, maxConn)
+
 	var pool *gPool
 	pool = &gPool{
 		MaxConner:  maxConn,
@@ -50,7 +55,8 @@ func (pool *gPool) Get() (net.Conn, error) {
 	if conns == nil {
 		return nil, errors.New("pool is closed")
 	}
-
+	// get方法需要获取token，判断是否达到最大连接数
+	max <- struct{}{}
 	select {
 	case conn := <-conns:
 		if conn == nil {

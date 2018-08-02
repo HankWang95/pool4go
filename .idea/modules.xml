@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/pool4go/pool4go.iml" filepath="$PROJECT_DIR$/pool4go/pool4go.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pool4go.iml" filepath="$PROJECT_DIR$/pool4go.iml" />
     </modules>
   </component>
 </project>

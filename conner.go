@@ -21,7 +21,8 @@ func (pool *gPool) wrapConn(conn net.Conn) net.Conn {
 func (conner *Conner) Close() error {
 	conner.mu.Lock()
 	defer conner.mu.Unlock()
-
+	// 归还token
+	defer func() {<-max}()
 	if conner.unusable {
 		if conner.Conn != nil {
 			return conner.Conn.Close()
